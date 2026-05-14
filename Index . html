@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Website</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0f0f1a; color: white; font-family: Arial; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; padding: 20px; color: #a78bfa; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background: #2d2d44; color: white; }
+        .tab.active { background: #7c3aed; }
+        .chat-box { background: #1a1a2e; border-radius: 12px; padding: 15px; height: 400px; overflow-y: auto; margin-bottom: 15px; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 8px; }
+        .user-msg { background: #7c3aed; margin-left: 20%; }
+        .ai-msg { background: #2d2d44; margin-right: 20%; }
+        .input-area { display: flex; gap: 10px; }
+        input, textarea { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #2d2d44; color: white; font-size: 16px; }
+        button.send { padding: 12px 20px; background: #7c3aed; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 16px; }
+        .img-result { margin-top: 15px; text-align: center; }
+        .img-result img { max-width: 100%; border-radius: 12px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .api-input { width: 100%; padding: 12px; background: #2d2d44; border: none; border-radius: 8px; color: white; margin-bottom: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🤖 AI Website</h1>
+
+    <div style="margin-bottom:15px;">
+        <input class="api-input" type="password" id="apiKey" placeholder="🔑 Apni Anthropic API Key yahan daalo...">
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('chat')">💬 Chat</button>
+        <button class="tab" onclick="showTab('image')">🎨 Image</button>
+    </div>
+
+    <div id="chat" class="section active">
+        <div class="chat-box" id="chatBox"></div>
+        <div class="input-area">
+            <input type="text" id="chatInput" placeholder="Kuch poocho..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button class="send" onclick="sendChat()">Send</button>
+        </div>
+    </div>
+
+    <div id="image" class="section">
+        <div class="input-area">
+            <input type="text" id="imgInput" placeholder="Image describe karo... (e.g. sunset over mountains)">
+            <button class="send" onclick="generateImage()">Generate</button>
+        </div>
+        <div class="img-result" id="imgResult"></div>
+    </div>
+</div>
+
+<script>
+    function showTab(tab) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tab).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    async function sendChat() {
+        const key = document.getElementById('apiKey').value.trim();
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg || !key) { alert('API key aur message dono daalo!'); return; }
+
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML += `<div class="message user-msg">🧑 ${msg}</div>`;
+        input.value = '';
+        chatBox.innerHTML += `<div class="message ai-msg" id="typing">⏳ Soch raha hoon...</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': key,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 1024,
+                    messages: [{ role: 'user', content: msg }]
+                })
+            });
+            const data = await res.json();
+            const reply = data.content[0].text;
+            document.getElementById('typing').outerHTML = `<div class="message ai-msg">🤖 ${reply}</div>`;
+        } catch (e) {
+            document.getElementById('typing').outerHTML = `<div class="message ai-msg">❌ Error aaya, API key check karo!</div>`;
+        }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function generateImage() {
+        const prompt = document.getElementById('imgInput').value.trim();
+        if (!prompt) { alert('Pehle image describe karo!'); return; }
+        const imgResult = document.getElementById('imgResult');
+        imgResult.innerHTML = '⏳ Image ban rahi hai...';
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+        imgResult.innerHTML = `<img src="${url}" alt="${prompt}" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.5s;">`;
+    }
+</script>
+</body>
+  </html>
