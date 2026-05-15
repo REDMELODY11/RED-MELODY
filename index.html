@@ -1,217 +1,221 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RED-MELODY AI</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:#f8f9fa;color:#202124;font-family:'Arial',sans-serif;min-height:100vh;}
-.header{background:white;padding:15px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100;}
-.header h1{font-size:1.3em;color:#1a73e8;font-weight:700;}
-.header span{color:#888;font-size:0.85em;}
-.api-section{background:white;margin:15px;border-radius:12px;padding:15px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
-.api-section label{font-size:0.85em;color:#555;display:block;margin-bottom:6px;}
-.api-section input{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;color:#202124;}
-.nav{display:flex;gap:8px;padding:0 15px;overflow-x:auto;padding-bottom:5px;}
-.nav::-webkit-scrollbar{display:none;}
-.nav-btn{padding:8px 16px;border:none;border-radius:20px;background:#e8f0fe;color:#1a73e8;cursor:pointer;font-size:13px;white-space:nowrap;font-weight:500;}
-.nav-btn.active{background:#1a73e8;color:white;}
-.content{margin:15px;background:white;border-radius:12px;padding:15px;box-shadow:0 1px 3px rgba(0,0,0,0.1);min-height:400px;}
-.section{display:none;}
-.section.active{display:block;}
-.section-title{font-size:1.1em;font-weight:600;margin-bottom:15px;color:#202124;display:flex;align-items:center;gap:8px;}
-.chat-box{background:#f8f9fa;border-radius:10px;padding:12px;height:320px;overflow-y:auto;margin-bottom:12px;}
-.message{margin:8px 0;padding:10px 14px;border-radius:18px;max-width:85%;font-size:14px;line-height:1.5;}
-.user-msg{background:#1a73e8;color:white;margin-left:auto;border-radius:18px 18px 4px 18px;}
-.ai-msg{background:white;color:#202124;border:1px solid #e0e0e0;border-radius:18px 18px 18px 4px;}
-.input-row{display:flex;gap:8px;align-items:center;}
-.input-row input{flex:1;padding:11px 15px;border:1px solid #ddd;border-radius:24px;font-size:14px;outline:none;}
-.input-row input:focus{border-color:#1a73e8;}
-.send-btn{width:42px;height:42px;background:#1a73e8;border:none;border-radius:50%;color:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
-.img-box{background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:12px;}
-.img-box p{color:#888;font-size:13px;margin-bottom:10px;}
-.img-result{margin-top:12px;text-align:center;}
-.img-result img{max-width:100%;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-.assistant-form{background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:12px;}
-.assistant-form p{font-size:13px;color:#555;margin-bottom:10px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.form-grid input{padding:9px;border:1px solid #ddd;border-radius:8px;font-size:13px;}
-.save-btn{width:100%;padding:10px;background:#34a853;border:none;border-radius:8px;color:white;font-size:14px;cursor:pointer;font-weight:500;}
-.about-card{background:#f8f9fa;border-radius:10px;padding:15px;margin-bottom:10px;}
-.about-card h3{color:#1a73e8;margin-bottom:8px;}
-.about-card p{font-size:13px;color:#555;line-height:1.6;}
-.feature-list{list-style:none;margin-top:8px;}
-.feature-list li{padding:5px 0;font-size:13px;color:#555;}
-</style>
-</head>
-<body>
-
-<div class="header">
-  <h1>🤖 RED-MELODY AI</h1>
-  <span>Powered by Gemini</span>
-</div>
-
-<div class="api-section">
-  <label>🔑 Gemini API Key</label>
-  <input type="password" id="apiKey" placeholder="AIza... yahan paste karo">
-</div>
-
-<div class="nav">
-  <button class="nav-btn active" onclick="showSection('chat',this)">💬 Chat</button>
-  <button class="nav-btn" onclick="showSection('image',this)">🎨 Image</button>
-  <button class="nav-btn" onclick="showSection('assistant',this)">🤖 Assistant</button>
-  <button class="nav-btn" onclick="showSection('about',this)">ℹ️ About</button>
-</div>
-
-<div class="content">
-
-  <!-- CHAT -->
-  <div id="chat" class="section active">
-    <div class="section-title">💬 AI Chat</div>
-    <div class="chat-box" id="chatBox">
-      <div class="message ai-msg">Namaste! Main aapka AI assistant hoon. Kuch bhi poocho! 😊</div>
-    </div>
-    <div class="input-row">
-      <input type="text" id="chatInput" placeholder="Kuch poocho..." onkeypress="if(event.key==='Enter')sendChat()">
-      <button class="send-btn" onclick="sendChat()">➤</button>
-    </div>
-  </div>
-
-  <!-- IMAGE -->
-  <div id="image" class="section">
-    <div class="section-title">🎨 Image Generator</div>
-    <div class="img-box">
-      <p>Koi bhi image describe karo, main bana dunga!</p>
-      <div class="input-row">
-        <input type="text" id="imgInput" placeholder="e.g. sunset over mountains...">
-        <button class="send-btn" onclick="generateImage()">➤</button>
-      </div>
-    </div>
-    <div class="img-result" id="imgResult"></div>
-  </div>
-
-  <!-- ASSISTANT -->
-  <div id="assistant" class="section">
-    <div class="section-title">🤖 Personal Assistant</div>
-    <div class="assistant-form">
-      <p>📝 Apni info save karo — assistant aapko personally janega!</p>
-      <div class="form-grid">
-        <input type="text" id="userName" placeholder="Aapka naam">
-        <input type="text" id="userAge" placeholder="Aapki age">
-        <input type="text" id="userCity" placeholder="Aapka city">
-        <input type="text" id="userHobby" placeholder="Aapki hobby">
-      </div>
-      <button class="save-btn" onclick="saveInfo()">💾 Info Save Karo</button>
-    </div>
-    <div class="chat-box" id="assistantBox">
-      <div class="message ai-msg">Apni info save karo, phir mujhse kuch bhi poocho! 😊</div>
-    </div>
-    <div class="input-row">
-      <input type="text" id="assistantInput" placeholder="Assistant se poocho..." onkeypress="if(event.key==='Enter')sendAssistant()">
-      <button class="send-btn" onclick="sendAssistant()">➤</button>
-    </div>
-  </div>
-
-  <!-- ABOUT -->
-  <div id="about" class="section">
-    <div class="section-title">ℹ️ About</div>
-    <div class="about-card">
-      <h3>🌟 RED-MELODY AI</h3>
-      <p>Yeh ek free AI website hai jo Google Gemini se powered hai. Bilkul free, fast aur powerful!</p>
-    </div>
-    <div class="about-card">
-      <h3>✨ Features</h3>
-      <ul class="feature-list">
-        <li>💬 AI Chat — Kuch bhi poocho</li>
-        <li>🎨 Image Generator — Images banao</li>
-        <li>🤖 Personal Assistant — Aapka apna assistant</li>
-        <li>🆓 100% Free</li>
-      </ul>
-    </div>
-    <div class="about-card">
-      <p style="color:#1a73e8;font-weight:500;">Made with ❤️ by REDMELODY11</p>
-    </div>
-  </div>
-
-</div>
-
-<script>
-let userInfo = {};
-
-function showSection(id, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-}
-
-function saveInfo() {
-  userInfo = {
-    naam: document.getElementById('userName').value,
-    age: document.getElementById('userAge').value,
-    city: document.getElementById('userCity').value,
-    hobby: document.getElementById('userHobby').value
-  };
-  alert('✅ Info save ho gayi!');
-}
-
-async function callGemini(prompt) {
-  const key = document.getElementById('apiKey').value.trim();
-  if (!key) { alert('Pehle API key daalo!'); return null; }
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-  });
-  const data = await res.json();
-  return data.candidates[0].content.parts[0].text;
-}
-
-async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  const box = document.getElementById('chatBox');
-  box.innerHTML += `<div class="message user-msg">${msg}</div>`;
-  input.value = '';
-  box.innerHTML += `<div class="message ai-msg" id="typing">⏳ Soch raha hoon...</div>`;
-  box.scrollTop = box.scrollHeight;
-  try {
-    const reply = await callGemini(msg);
-    document.getElementById('typing').outerHTML = `<div class="message ai-msg">${reply}</div>`;
-  } catch(e) {
-    document.getElementById('typing').outerHTML = `<div class="message ai-msg">❌ Error! API key check karo.</div>`;
-  }
-  box.scrollTop = box.scrollHeight;
-}
-
-async function sendAssistant() {
-  const input = document.getElementById('assistantInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  const box = document.getElementById('assistantBox');
-  box.innerHTML += `<div class="message user-msg">${msg}</div>`;
-  input.value = '';
-  box.innerHTML += `<div class="message ai-msg" id="atyping">⏳ Soch raha hoon...</div>`;
-  box.scrollTop = box.scrollHeight;
-  const context = userInfo.naam ? `Tu ek personal assistant hai. User ka naam ${userInfo.naam} hai, age ${userInfo.age}, city ${userInfo.city}, hobby ${userInfo.hobby}. Inki madad kar: ` : '';
-  try {
-    const reply = await callGemini(context + msg);
-    document.getElementById('atyping').outerHTML = `<div class="message ai-msg">${reply}</div>`;
-  } catch(e) {
-    document.getElementById('atyping').outerHTML = `<div class="message ai-msg">❌ Error! API key check karo.</div>`;
-  }
-  box.scrollTop = box.scrollHeight;
-}
-
-function generateImage() {
-  const prompt = document.getElementById('imgInput').value.trim();
-  if (!prompt) { alert('Pehle describe karo!'); return; }
-  document.getElementById('imgResult').innerHTML = '⏳ Image ban rahi hai...';
-  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-  document.getElementById('imgResult').innerHTML = `<img src="${url}" onload="this.style.opacity=1" style="opacity:0;transition:0.5s;">`;
-}
-</script>
-</body>
-          </html>
+‎<!DOCTYPE html>
+‎<html lang="en">
+‎<head>
+‎<meta charset="UTF-8">
+‎<meta name="viewport" content="width=device-width, initial-scale=1.0">
+‎<title>RED-MELODY AI</title>
+‎<style>
+‎*{margin:0;padding:0;box-sizing:border-box;}
+‎body{background:#f8f9fa;color:#202124;font-family:'Arial',sans-serif;min-height:100vh;}
+‎.header{background:white;padding:15px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100;}
+‎.header h1{font-size:1.3em;color:#1a73e8;font-weight:700;}
+‎.header span{color:#888;font-size:0.85em;}
+‎.api-section{background:white;margin:15px;border-radius:12px;padding:15px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+‎.api-section label{font-size:0.85em;color:#555;display:block;margin-bottom:6px;}
+‎.api-section input{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px;color:#202124;}
+‎.nav{display:flex;gap:8px;padding:0 15px;overflow-x:auto;padding-bottom:5px;}
+‎.nav::-webkit-scrollbar{display:none;}
+‎.nav-btn{padding:8px 16px;border:none;border-radius:20px;background:#e8f0fe;color:#1a73e8;cursor:pointer;font-size:13px;white-space:nowrap;font-weight:500;}
+‎.nav-btn.active{background:#1a73e8;color:white;}
+‎.content{margin:15px;background:white;border-radius:12px;padding:15px;box-shadow:0 1px 3px rgba(0,0,0,0.1);min-height:400px;}
+‎.section{display:none;}
+‎.section.active{display:block;}
+‎.section-title{font-size:1.1em;font-weight:600;margin-bottom:15px;color:#202124;display:flex;align-items:center;gap:8px;}
+‎.chat-box{background:#f8f9fa;border-radius:10px;padding:12px;height:320px;overflow-y:auto;margin-bottom:12px;}
+‎.message{margin:8px 0;padding:10px 14px;border-radius:18px;max-width:85%;font-size:14px;line-height:1.5;}
+‎.user-msg{background:#1a73e8;color:white;margin-left:auto;border-radius:18px 18px 4px 18px;}
+‎.ai-msg{background:white;color:#202124;border:1px solid #e0e0e0;border-radius:18px 18px 18px 4px;}
+‎.input-row{display:flex;gap:8px;align-items:center;}
+‎.input-row input{flex:1;padding:11px 15px;border:1px solid #ddd;border-radius:24px;font-size:14px;outline:none;}
+‎.input-row input:focus{border-color:#1a73e8;}
+‎.send-btn{width:42px;height:42px;background:#1a73e8;border:none;border-radius:50%;color:white;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+‎.img-box{background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:12px;}
+‎.img-box p{color:#888;font-size:13px;margin-bottom:10px;}
+‎.img-result{margin-top:12px;text-align:center;}
+‎.img-result img{max-width:100%;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+‎.assistant-form{background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:12px;}
+‎.assistant-form p{font-size:13px;color:#555;margin-bottom:10px;}
+‎.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+‎.form-grid input{padding:9px;border:1px solid #ddd;border-radius:8px;font-size:13px;}
+‎.save-btn{width:100%;padding:10px;background:#34a853;border:none;border-radius:8px;color:white;font-size:14px;cursor:pointer;font-weight:500;}
+‎.about-card{background:#f8f9fa;border-radius:10px;padding:15px;margin-bottom:10px;}
+‎.about-card h3{color:#1a73e8;margin-bottom:8px;}
+‎.about-card p{font-size:13px;color:#555;line-height:1.6;}
+‎.feature-list{list-style:none;margin-top:8px;}
+‎.feature-list li{padding:5px 0;font-size:13px;color:#555;}
+‎</style>
+‎</head>
+‎<body>
+‎
+‎<div class="header">
+‎  <h1>🤖 RED-MELODY AI</h1>
+‎  <span>Powered by Groq</span>
+‎</div>
+‎
+‎<div class="api-section">
+‎  <label>🔑 Groq API Key</label>
+‎  <input type="password" id="apiKey" placeholder="gsk_... yahan paste karo">
+‎</div>
+‎
+‎<div class="nav">
+‎  <button class="nav-btn active" onclick="showSection('chat',this)">💬 Chat</button>
+‎  <button class="nav-btn" onclick="showSection('image',this)">🎨 Image</button>
+‎  <button class="nav-btn" onclick="showSection('assistant',this)">🤖 Assistant</button>
+‎  <button class="nav-btn" onclick="showSection('about',this)">ℹ️ About</button>
+‎</div>
+‎
+‎<div class="content">
+‎
+‎  <div id="chat" class="section active">
+‎    <div class="section-title">💬 AI Chat</div>
+‎    <div class="chat-box" id="chatBox">
+‎      <div class="message ai-msg">Namaste! Main aapka AI assistant hoon. Kuch bhi poocho! 😊</div>
+‎    </div>
+‎    <div class="input-row">
+‎      <input type="text" id="chatInput" placeholder="Kuch poocho..." onkeypress="if(event.key==='Enter')sendChat()">
+‎      <button class="send-btn" onclick="sendChat()">➤</button>
+‎    </div>
+‎  </div>
+‎
+‎  <div id="image" class="section">
+‎    <div class="section-title">🎨 Image Generator</div>
+‎    <div class="img-box">
+‎      <p>Koi bhi image describe karo, main bana dunga!</p>
+‎      <div class="input-row">
+‎        <input type="text" id="imgInput" placeholder="e.g. sunset over mountains...">
+‎        <button class="send-btn" onclick="generateImage()">➤</button>
+‎      </div>
+‎    </div>
+‎    <div class="img-result" id="imgResult"></div>
+‎  </div>
+‎
+‎  <div id="assistant" class="section">
+‎    <div class="section-title">🤖 Personal Assistant</div>
+‎    <div class="assistant-form">
+‎      <p>📝 Apni info save karo — assistant aapko personally janega!</p>
+‎      <div class="form-grid">
+‎        <input type="text" id="userName" placeholder="Aapka naam">
+‎        <input type="text" id="userAge" placeholder="Aapki age">
+‎        <input type="text" id="userCity" placeholder="Aapka city">
+‎        <input type="text" id="userHobby" placeholder="Aapki hobby">
+‎      </div>
+‎      <button class="save-btn" onclick="saveInfo()">💾 Info Save Karo</button>
+‎    </div>
+‎    <div class="chat-box" id="assistantBox">
+‎      <div class="message ai-msg">Apni info save karo, phir mujhse kuch bhi poocho! 😊</div>
+‎    </div>
+‎    <div class="input-row">
+‎      <input type="text" id="assistantInput" placeholder="Assistant se poocho..." onkeypress="if(event.key==='Enter')sendAssistant()">
+‎      <button class="send-btn" onclick="sendAssistant()">➤</button>
+‎    </div>
+‎  </div>
+‎
+‎  <div id="about" class="section">
+‎    <div class="section-title">ℹ️ About</div>
+‎    <div class="about-card">
+‎      <h3>🌟 RED-MELODY AI</h3>
+‎      <p>Yeh ek free AI website hai jo Groq AI se powered hai. Bilkul free, fast aur powerful!</p>
+‎    </div>
+‎    <div class="about-card">
+‎      <h3>✨ Features</h3>
+‎      <ul class="feature-list">
+‎        <li>💬 AI Chat — Kuch bhi poocho</li>
+‎        <li>🎨 Image Generator — Images banao</li>
+‎        <li>🤖 Personal Assistant — Aapka apna assistant</li>
+‎        <li>🆓 100% Free</li>
+‎      </ul>
+‎    </div>
+‎    <div class="about-card">
+‎      <p style="color:#1a73e8;font-weight:500;">Made with ❤️ by REDMELODY11</p>
+‎    </div>
+‎  </div>
+‎
+‎</div>
+‎
+‎<script>
+‎let userInfo = {};
+‎
+‎function showSection(id, btn) {
+‎  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+‎  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+‎  document.getElementById(id).classList.add('active');
+‎  btn.classList.add('active');
+‎}
+‎
+‎function saveInfo() {
+‎  userInfo = {
+‎    naam: document.getElementById('userName').value,
+‎    age: document.getElementById('userAge').value,
+‎    city: document.getElementById('userCity').value,
+‎    hobby: document.getElementById('userHobby').value
+‎  };
+‎  alert('✅ Info save ho gayi!');
+‎}
+‎
+‎async function callGroq(prompt) {
+‎  const key = document.getElementById('apiKey').value.trim();
+‎  if (!key) { alert('Pehle API key daalo!'); return null; }
+‎  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+‎    method: 'POST',
+‎    headers: {
+‎      'Content-Type': 'application/json',
+‎      'Authorization': `Bearer ${key}`
+‎    },
+‎    body: JSON.stringify({
+‎      model: 'llama3-8b-8192',
+‎      messages: [{role: 'user', content: prompt}],
+‎      max_tokens: 1024
+‎    })
+‎  });
+‎  const data = await res.json();
+‎  return data.choices[0].message.content;
+‎}
+‎
+‎async function sendChat() {
+‎  const input = document.getElementById('chatInput');
+‎  const msg = input.value.trim();
+‎  if (!msg) return;
+‎  const box = document.getElementById('chatBox');
+‎  box.innerHTML += `<div class="message user-msg">${msg}</div>`;
+‎  input.value = '';
+‎  box.innerHTML += `<div class="message ai-msg" id="typing">⏳ Soch raha hoon...</div>`;
+‎  box.scrollTop = box.scrollHeight;
+‎  try {
+‎    const reply = await callGroq(msg);
+‎    document.getElementById('typing').outerHTML = `<div class="message ai-msg">${reply}</div>`;
+‎  } catch(e) {
+‎    document.getElementById('typing').outerHTML = `<div class="message ai-msg">❌ Error! API key check karo.</div>`;
+‎  }
+‎  box.scrollTop = box.scrollHeight;
+‎}
+‎
+‎async function sendAssistant() {
+‎  const input = document.getElementById('assistantInput');
+‎  const msg = input.value.trim();
+‎  if (!msg) return;
+‎  const box = document.getElementById('assistantBox');
+‎  box.innerHTML += `<div class="message user-msg">${msg}</div>`;
+‎  input.value = '';
+‎  box.innerHTML += `<div class="message ai-msg" id="atyping">⏳ Soch raha hoon...</div>`;
+‎  box.scrollTop = box.scrollHeight;
+‎  const context = userInfo.naam ? `Tu ek personal assistant hai. User ka naam ${userInfo.naam} hai, age ${userInfo.age}, city ${userInfo.city}, hobby ${userInfo.hobby}. Inki madad kar: ` : '';
+‎  try {
+‎    const reply = await callGroq(context + msg);
+‎    document.getElementById('atyping').outerHTML = `<div class="message ai-msg">${reply}</div>`;
+‎  } catch(e) {
+‎    document.getElementById('atyping').outerHTML = `<div class="message ai-msg">❌ Error! API key check karo.</div>`;
+‎  }
+‎  box.scrollTop = box.scrollHeight;
+‎}
+‎
+‎function generateImage() {
+‎  const prompt = document.getElementById('imgInput').value.trim();
+‎  if (!prompt) { alert('Pehle describe karo!'); return; }
+‎  document.getElementById('imgResult').innerHTML = '⏳ Image ban rahi hai...';
+‎  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+‎  document.getElementById('imgResult').innerHTML = `<img src="${url}" onload="this.style.opacity=1" style="opacity:0;transition:0.5s;">`;
+‎}
+‎</script>
+‎</body>
+‎</html>
+‎
