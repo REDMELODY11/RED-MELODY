@@ -7,26 +7,17 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div id="app">
-
 <header>
   <h1>🤖 RED-MELODY AI</h1>
-  <p>Powered by Groq</p>
+  <p>Your Personal AI Assistant</p>
 </header>
-
-<div id="apiBox">
-  <label>🔑 Groq API Key</label>
-  <input type="password" id="apiKey" placeholder="gsk_... yahan paste karo">
-</div>
-
 <nav>
   <button class="navBtn active" onclick="show('chat',this)">💬 Chat</button>
   <button class="navBtn" onclick="show('image',this)">🎨 Image</button>
   <button class="navBtn" onclick="show('assistant',this)">🤖 Assistant</button>
   <button class="navBtn" onclick="show('about',this)">ℹ️ About</button>
 </nav>
-
 <main>
 
 <div id="chat" class="page active">
@@ -73,7 +64,7 @@
   <h2>ℹ️ About</h2>
   <div class="aboutBox">
     <h3>🌟 RED-MELODY AI</h3>
-    <p>Free AI website powered by Groq!</p>
+    <p>Free AI website — No API key needed!</p>
     <ul>
       <li>💬 AI Chat</li>
       <li>🎨 Image Generator</li>
@@ -86,9 +77,9 @@
 
 </main>
 </div>
-
 <script>
 let userInfo = {};
+let chatHistory = [];
 
 function show(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -107,23 +98,9 @@ function saveInfo() {
   alert('✅ Saved!');
 }
 
-async function callGroq(prompt) {
-  const key = document.getElementById('apiKey').value.trim();
-  if (!key) { alert('API key daalo!'); return null; }
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + key
-    },
-    body: JSON.stringify({
-      model: 'mixtral-8x7b-32768',
-      messages: [{role: 'user', content: prompt}],
-      max_tokens: 1024
-    })
-  });
-  const data = await res.json();
-  return data.choices[0].message.content;
+async function callAI(prompt) {
+  const res = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
+  return await res.text();
 }
 
 async function sendChat() {
@@ -133,13 +110,13 @@ async function sendChat() {
   const box = document.getElementById('chatBox');
   box.innerHTML += '<div class="userMsg">' + msg + '</div>';
   input.value = '';
-  box.innerHTML += '<div class="aiMsg" id="t1">⏳...</div>';
+  box.innerHTML += '<div class="aiMsg" id="t1">⏳ Soch raha hoon...</div>';
   box.scrollTop = box.scrollHeight;
   try {
-    const reply = await callGroq(msg);
+    const reply = await callAI(msg);
     document.getElementById('t1').outerHTML = '<div class="aiMsg">' + reply + '</div>';
   } catch(e) {
-    document.getElementById('t1').outerHTML = '<div class="aiMsg">❌ Error!</div>';
+    document.getElementById('t1').outerHTML = '<div class="aiMsg">❌ Error! Internet check karo.</div>';
   }
   box.scrollTop = box.scrollHeight;
 }
@@ -151,11 +128,11 @@ async function sendAssistant() {
   const box = document.getElementById('assistantBox');
   box.innerHTML += '<div class="userMsg">' + msg + '</div>';
   input.value = '';
-  box.innerHTML += '<div class="aiMsg" id="t2">⏳...</div>';
+  box.innerHTML += '<div class="aiMsg" id="t2">⏳ Soch raha hoon...</div>';
   box.scrollTop = box.scrollHeight;
-  const ctx = userInfo.naam ? 'Tu personal assistant hai. User: naam=' + userInfo.naam + ', age=' + userInfo.age + ', city=' + userInfo.city + ', hobby=' + userInfo.hobby + '. Sawaal: ' : '';
+  const ctx = userInfo.naam ? 'You are a personal assistant. User info - Name:' + userInfo.naam + ', Age:' + userInfo.age + ', City:' + userInfo.city + ', Hobby:' + userInfo.hobby + '. Answer this: ' : '';
   try {
-    const reply = await callGroq(ctx + msg);
+    const reply = await callAI(ctx + msg);
     document.getElementById('t2').outerHTML = '<div class="aiMsg">' + reply + '</div>';
   } catch(e) {
     document.getElementById('t2').outerHTML = '<div class="aiMsg">❌ Error!</div>';
@@ -166,11 +143,10 @@ async function sendAssistant() {
 function generateImage() {
   const prompt = document.getElementById('imgInput').value.trim();
   if (!prompt) { alert('Describe karo!'); return; }
-  document.getElementById('imgResult').innerHTML = '⏳ Ban rahi hai...';
+  document.getElementById('imgResult').innerHTML = '⏳ Image ban rahi hai...';
   const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt);
   document.getElementById('imgResult').innerHTML = '<img src="' + url + '" style="max-width:100%;border-radius:10px;margin-top:15px">';
 }
 </script>
-
 </body>
-                                       </html>
+</html>
