@@ -154,6 +154,18 @@ function generateImage() {
   const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt);
   document.getElementById('imgResult').innerHTML = '<img src="' + url + '" style="max-width:100%;border-radius:10px;margin-top:15px">';
 }
+  
+function handleUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('uploadPreview').innerHTML = 
+      '<img src="' + e.target.result + '" style="max-width:100%;border-radius:10px;max-height:200px">' +
+      '<p style="color:#1a73e8;margin-top:8px;font-size:13px">✅ Photo upload ho gayi!</p>';
+  };
+  reader.readAsDataURL(file);
+      }
 </script>
 </body>
 </html>
