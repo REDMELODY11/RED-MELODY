@@ -33,14 +33,21 @@
 
 <div id="image" class="page">
   <h2>🎨 Image Generator</h2>
-  <p>Koi bhi image describe karo!</p>
+  <p>Koi bhi image describe karo ya photo upload karo!</p>
   <div class="inputRow" style="margin-top:15px">
     <input type="text" id="imgInput" placeholder="e.g. sunset over mountains">
     <button onclick="generateImage()">Generate</button>
   </div>
+  <div style="margin-top:10px">
+    <button onclick="document.getElementById('fileInput').click()" style="width:100%;padding:12px;background:#f0f4ff;border:2px dashed #1a73e8;border-radius:10px;color:#1a73e8;font-size:15px;cursor:pointer;">
+      ➕ Photo Upload karo
+    </button>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleUpload(event)">
+  </div>
+  <div id="uploadPreview" style="margin-top:10px;text-align:center;"></div>
   <div id="imgResult"></div>
 </div>
-
+  
 <div id="assistant" class="page">
   <h2>🤖 Personal Assistant</h2>
   <div id="infoForm">
